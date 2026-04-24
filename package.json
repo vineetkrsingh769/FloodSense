@@ -16,6 +16,9 @@
     "postcss": "^8.4.35"
   },
   "scripts": {
+    "frontend": "react-scripts start",
+    "backend": ".\\.venv\\Scripts\\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload",
+    "dev": "start \"FloodSense Backend\" cmd /k \".\\.venv\\Scripts\\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload\" && react-scripts start",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
