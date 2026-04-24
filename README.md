@@ -192,5 +192,3 @@ If your model has a different output format, update `backend/main.py` accordingl
 | Deployment | Vercel (frontend) |
 
 ---
-
-Built with ❤️ by Devansh — FloodSense AI v1.0
