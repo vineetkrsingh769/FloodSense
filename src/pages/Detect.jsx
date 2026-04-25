@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { saveToHistory, incrementAnalysisCount } from '../utils/history';
-import { predictFlood } from '../utils/config';
+import { predictFlood, uploadModel } from '../utils/config';
 
 const FLOOD_RECOS = [
   '🚨 Move to higher ground immediately',
@@ -20,12 +20,15 @@ const SAFE_RECOS = [
 export default function Detect() {
   const [tab, setTab] = useState('gallery');
   const [preview, setPreview] = useState(null);
+  const [modelName, setModelName] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [camActive, setCamActive] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [modelLoading, setModelLoading] = useState(false);
 
   const fileRef = useRef();
+  const modelRef = useRef();
   const videoRef = useRef();
   const canvasRef = useRef();
   const streamRef = useRef(null);
@@ -40,6 +43,22 @@ export default function Detect() {
   function handleDrop(e) {
     e.preventDefault();
     handleFile(e.dataTransfer.files[0]);
+  }
+
+  async function loadModel(e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    setModelLoading(true);
+    try {
+      await uploadModel(f);
+      setModelName(f.name);
+      alert('Model uploaded and loaded successfully.');
+    } catch (err) {
+      alert(`Model upload failed: ${err.message}`);
+      setModelName(null);
+    } finally {
+      setModelLoading(false);
+    }
   }
 
   function loadUrl() {
@@ -121,7 +140,7 @@ export default function Detect() {
 
   function doDownload() {
     if (!result) return;
-    const text = `FloodSense AI Report\n${'─'.repeat(38)}\nDate: ${new Date().toLocaleString()}\nResult: ${result.isFlood ? 'FLOOD DETECTED' : 'SAFE'}\nConfidence: ${result.conf}%\nWater Coverage: ${result.water}%\nProcess Time: ${result.ptime}s\n\nPowered by FloodSense AI + Gemini`;
+    const text = `FloodSense AI Report\n${'─'.repeat(38)}\nDate: ${new Date().toLocaleString()}\nResult: ${result.isFlood ? 'FLOOD DETECTED' : 'SAFE'}\nConfidence: ${result.conf}%\nWater Coverage: ${result.water}%\nProcess Time: ${result.ptime}s\nModel: ${modelName || 'Simulated'}\n\nPowered by FloodSense AI + Gemini`;
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
     a.download = 'floodsense-report.txt';
@@ -146,6 +165,54 @@ export default function Detect() {
             Flood <span className="shimmer-text">Detection</span>
           </h2>
           <p style={{ color: '#64748b' }}>Upload or capture an image to analyze flood risk with AI</p>
+        </div>
+
+        {/* Model loader */}
+        <div className="glass-card" style={{ borderRadius: 18, padding: 18, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 24 }}>🧠</span>
+            <div style={{ flex: 1 }}>
+              <div className="font-display" style={{ fontWeight: 700, color: 'white', fontSize: 15 }}>ML Model (model.pt)</div>
+              <div style={{ fontSize: 12, color: '#64748b' }}>Upload your PyTorch model file</div>
+            </div>
+            <div style={{
+              background: modelName ? 'rgba(0,255,100,.1)' : 'rgba(255,80,80,.12)',
+              border: modelName ? '1px solid rgba(0,255,100,.3)' : '1px solid rgba(255,80,80,.3)',
+              color: modelName ? '#4ade80' : '#f87171',
+              fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 8
+            }}>
+              {modelLoading ? 'Uploading...' : modelName ? '✓ ' + modelName.substring(0, 20) : 'Not Loaded'}
+            </div>
+          </div>
+          <label className="upload-zone" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12, cursor: 'pointer', borderRadius: 12, padding: 12 }}>
+            <input ref={modelRef} type="file" accept=".pt,.pth" style={{ display: 'none' }} onChange={loadModel} />
+            <span style={{ fontSize: 16, color: '#60a5fa' }}>📂</span>
+            <span style={{ fontSize: 13, color: '#64748b' }}>Click to upload model.pt / model.pth</span>
+          </label>
+        </div>
+
+        {/* Model loader */}
+        <div className="glass-card" style={{ borderRadius: 18, padding: 18, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 24 }}>🧠</span>
+            <div style={{ flex: 1 }}>
+              <div className="font-display" style={{ fontWeight: 700, color: 'white', fontSize: 15 }}>ML Model (model.pt)</div>
+              <div style={{ fontSize: 12, color: '#64748b' }}>Upload your PyTorch model file</div>
+            </div>
+            <div style={{
+              background: modelName ? 'rgba(0,255,100,.1)' : 'rgba(255,80,80,.12)',
+              border: modelName ? '1px solid rgba(0,255,100,.3)' : '1px solid rgba(255,80,80,.3)',
+              color: modelName ? '#4ade80' : '#f87171',
+              fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 8
+            }}>
+              {modelLoading ? 'Uploading...' : modelName ? '✓ ' + modelName.substring(0, 20) : 'Not Loaded'}
+            </div>
+          </div>
+          <label className="upload-zone" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12, cursor: 'pointer', borderRadius: 12, padding: 12 }}>
+            <input ref={modelRef} type="file" accept=".pt,.pth" style={{ display: 'none' }} onChange={loadModel} />
+            <span style={{ fontSize: 16, color: '#60a5fa' }}>📂</span>
+            <span style={{ fontSize: 13, color: '#64748b' }}>Click to upload model.pt / model.pth</span>
+          </label>
         </div>
 
         {/* Image upload card */}
