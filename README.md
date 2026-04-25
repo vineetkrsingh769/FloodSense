@@ -1,6 +1,6 @@
 # FloodSense AI
 
-> Real-time flood detection powered by PyTorch + FastAPI + React + Gemini AI
+> Real-time flood detection powered by PyTorch + FastAPI + React 
 
 ---
 
