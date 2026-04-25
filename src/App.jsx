@@ -1,11 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import RainBackground from './components/RainBackground';
-import Chatbot from './components/Chatbot';
-import Home from './pages/Home';
-import Detect from './pages/Detect';
-import History from './pages/History';
+// import Navbar from './components/Navbar';
+// import RainBackground from './components/RainBackground';
+// import Chatbot from './components/Chatbot';
+// import Home from './pages/Home';
+// import Detect from './pages/Detect';
+// import History from './pages/History';
 import About from './pages/About';
 
 export default function App() {
